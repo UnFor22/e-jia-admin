@@ -1,8 +1,32 @@
 const {Router} = require ('express')
 const router = Router()
 const adminUserModel = require('../model/adminUser')
+const auth = require('./auth')
 
-router.post('/', async(req,res,next) => { // 添加管理员
+router.get('/', auth, async(req,res,next) => {
+    try {
+        let {page=1, page_size = 10} =req.query
+        page = parseInt(page)
+        page_size = parseInt(page_size) 
+
+        const dataList = await adminUserModel
+            .find()
+            .skip((page-1)*page_size)
+            .limit(page_size)
+            .sort({_id:-1})
+            .select('-password')
+        
+        res.json({
+            code: 200,
+            data: dataList,
+            msg: 'success'
+        })
+    }catch(err){
+        next(err)
+    }
+})
+
+router.post('/', auth, async(req,res,next) => { // 添加管理员
     try {
         let {
             username,
