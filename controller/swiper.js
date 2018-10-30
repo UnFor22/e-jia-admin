@@ -1,32 +1,28 @@
 const {Router} = require ('express')
 const router = Router()
-const newsModel = require('../model/news')
+const swiperModel = require('../model/swiper')
 const auth = require('./auth')
 
 router.post('/', auth, async(req,res,next) => { 
     try {
         let {
             title,
-            content,
-            contentText,
+            sort,
+            status,
             img,
-            author,
-            type,
-            look_num
+            type        
         } = req.body
-        const data = await newsModel.create({
+        const data = await swiperModel.create({
             title,
-            content,  
-            contentText,
+            sort,
+            status,
             img,
-            author,
-            type,
-            look_num
+            type  
         })
         res.json({
             code: 200,
             data,
-            msg: '新建新闻成功'
+            msg: '新建轮播图成功'
         })
     } catch(err) {
         next(err)
@@ -39,14 +35,11 @@ router.get('/', async(req,res,next) => {
         page = parseInt(page)
         page_size = parseInt(page_size)
 
-        const data = await newsModel
+        const data = await swiperModel
             .find()
             .skip((page-1)*page_size)
             .limit(page_size)
             .sort({_id: -1})
-            .populate({
-                path: 'author'
-            })
             .populate({path:'type'})
         
         res.json({
@@ -63,9 +56,6 @@ router.get('/:id', async(req,res,next) => {
         const {id} = req.params
         const data = await newsModel
             .findById(id)
-            .populate({
-                path:'author'
-            })
             .populate({path:'type'})  
         res.json({
             code: 200,
