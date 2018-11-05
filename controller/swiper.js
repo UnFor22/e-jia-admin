@@ -29,6 +29,38 @@ router.post('/', auth, async(req,res,next) => {
     }
 })
 
+router.patch('/:id', auth, async(req,res,next) => { 
+    try {
+        let {id} = req.params
+        let {
+            title,
+            sort,
+            status,
+            img,
+            type        
+        } = req.body
+
+        const data = await swiperModel.findById(id)
+        const updateData = await data.update({
+            $set:{
+                title,
+                sort,
+                status,
+                img,
+                type  
+            }    
+        })
+        res.json({
+            code: 200,
+            data: updateData,
+            msg: '修改轮播图成功'
+        })
+    } catch(err) {
+        next(err)
+    }
+})
+
+
 router.get('/', async(req,res,next) => {
     try {
         let {page = 1, page_size = 10} = req.query
@@ -39,7 +71,7 @@ router.get('/', async(req,res,next) => {
             .find()
             .skip((page-1)*page_size)
             .limit(page_size)
-            .sort({_id: -1})
+            .sort({sort:1,_id: -1})
             .populate({path:'type'})
         
         res.json({
@@ -54,7 +86,7 @@ router.get('/', async(req,res,next) => {
 router.get('/:id', async(req,res,next) => {
     try {
         const {id} = req.params
-        const data = await newsModel
+        const data = await swiperModel
             .findById(id)
             .populate({path:'type'})  
         res.json({
